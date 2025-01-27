@@ -1,6 +1,9 @@
 # Build directory
 build
 
+# Output files
+evhz
+
 # Object files
 *.o
 
