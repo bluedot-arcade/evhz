@@ -85,6 +85,14 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    int selected_event;
+    printf("\n");
+    printf("Enter the event number (e.g., for event2, enter 2): ");
+    if(scanf("%d", &selected_event) != 1) {
+        printf("Invalid input\n");
+        return 1;
+    }
+
     while(!quit) {
         fd_set set;
 
@@ -103,50 +111,50 @@ int main(int argc, char *argv[]) {
         int bytes;
         struct input_event event;
 
-        for(i = 0; i <= max_event; i++) {
-            if(events[i].fd == -1 || !FD_ISSET(events[i].fd, &set)) {
-                continue;
-            }
+        i = selected_event;
 
-            bytes = read(events[i].fd, &event, sizeof(event));
+        if(events[i].fd == -1 || !FD_ISSET(events[i].fd, &set)) {
+            continue;
+        }
 
-            if(bytes != sizeof(event)) {
-                continue;
-            }
+        bytes = read(events[i].fd, &event, sizeof(event));
 
-            if(event.type == EV_REL || event.type == EV_ABS) {
-                unsigned long long time, timediff;
-                unsigned hz = 0;
+        if(bytes != sizeof(event)) {
+            continue;
+        }
 
-                time = (unsigned long long)event.time.tv_sec * 8000ULL;
-                time += (unsigned long long)event.time.tv_usec / 125ULL;
+        if(event.type == EV_REL || event.type == EV_ABS || event.type == EV_KEY) {
+            unsigned long long time, timediff;
+            unsigned hz = 0;
 
-                timediff = time - events[i].prev_time;
+            time = (unsigned long long)event.time.tv_sec * 8000ULL;
+            time += (unsigned long long)event.time.tv_usec / 125ULL;
 
-                if(timediff != 0)
-                    hz = 8000ULL / timediff;
+            timediff = time - events[i].prev_time;
 
-                if(hz > 0) {
-                    unsigned j, maxavg;
+            if(timediff != 0)
+                hz = 8000ULL / timediff;
 
-                    events[i].count++;
-                    events[i].hz[events[i].count & (HZ_LIST - 1)] = hz;
+            if(hz > 0) {
+                unsigned j, maxavg;
 
-                    events[i].avghz = 0;
+                events[i].count++;
+                events[i].hz[events[i].count & (HZ_LIST - 1)] = hz;
 
-                    maxavg = (events[i].count > HZ_LIST) ? HZ_LIST : events[i].count;
+                events[i].avghz = 0;
 
-                    for(j = 0; j < maxavg; j++) {
-                        events[i].avghz += events[i].hz[j];
-                    }
+                maxavg = (events[i].count > HZ_LIST) ? HZ_LIST : events[i].count;
 
-                    events[i].avghz /= maxavg;
-
-                    if(verbose) printf("%s: Latest % 5iHz, Average % 5iHz\n", events[i].name, hz, events[i].avghz);
+                for(j = 0; j < maxavg; j++) {
+                    events[i].avghz += events[i].hz[j];
                 }
 
-                events[i].prev_time = time;
+                events[i].avghz /= maxavg;
+
+                if(verbose) printf("%s: Latest % 5iHz, Average % 5iHz\n", events[i].name, hz, events[i].avghz);
             }
+
+            events[i].prev_time = time;
         }
     }
 

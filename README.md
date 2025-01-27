@@ -1,12 +1,6 @@
 # evhz
 
-Show mouse refresh rate under linux + evdev
-
-For information about polling rate, see https://wiki.archlinux.org/index.php/Mouse_Polling_Rate
-
-Just do ./run (run is very short and readable).
-
-Nonverbose mode = -n, but you probably don't want that.
+Show hid device refresh rate under linux + evdev
 
 Reported average is for the last 64 samples, or as many as we have so far.
 
@@ -15,6 +9,20 @@ where a 1000 hz mouse will only read at 500hz, causing jittering:
 https://bugzilla.kernel.org/show_bug.cgi?id=60586. A workaround is to
 use USB ports that use the ehci-pci driver.
 
+This is a modified version of the original evhz by Ian Kelling.
+
 Maintainer: Ian Kelling <ian@iankelling.org>
 
-Bugs, patches, requests, feedback are welcome.
+## Build from sources
+
+```sh
+git clone git@github.com:bluedot-arcade/evhz.git
+cd evhz
+make
+```
+
+The output will be built in the `build` directory.
+
+
+
+
